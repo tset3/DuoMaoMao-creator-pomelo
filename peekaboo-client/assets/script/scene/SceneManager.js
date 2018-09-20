@@ -1,10 +1,10 @@
-
-
-var instance = null;
-
 /**
  * 场景管理
  */
+
+var instance = null;
+
+
 cc.Class({
     extends: cc.Component,
 
@@ -14,21 +14,21 @@ cc.Class({
         progressBar: cc.Sprite,
     },
 
-    onLoad: function(){
+    onLoad: function () {
         instance = this;
         cc.game.addPersistRootNode(this.node);
     },
 
     open: function (isOpen) {
         this.bg.active = isOpen;
-        if(isOpen){
+        if (isOpen) {
             // this.prompt.string = '提示：' + consts.randomPromptString();
         }
     },
 
     // 
-    setPercent: function(percent){
-        if(!this.node.active)
+    setPercent: function (percent) {
+        if (!this.node.active)
             return;
         this.progressBar.fillRange = percent;
     }
@@ -37,7 +37,7 @@ cc.Class({
 
 var exp = module.exports;
 
-function getInstance(){
+function getInstance() {
     return instance;
 }
 
@@ -49,10 +49,10 @@ function getInstance(){
 exp.load = function (sceneNanme) {
     showLoadingDisplay();
     // console.log(sceneNanme)
-    if(typeof(sceneNanme) === 'string'){
+    if (typeof (sceneNanme) === 'string') {
         cc.director.loadScene(sceneNanme);
-    } else if(typeof(sceneNanme) === 'function'){
-        sceneNanme(function(name){
+    } else if (typeof (sceneNanme) === 'function') {
+        sceneNanme(function (name) {
             cc.director.loadScene(name);
         })
     } else {
@@ -62,7 +62,7 @@ exp.load = function (sceneNanme) {
 
 
 // 显示加载进度条 - node形式实现
-function showLoadingDisplay(){
+function showLoadingDisplay() {
     var instance = getInstance();
 
     instance.open(true);

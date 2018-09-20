@@ -2,6 +2,8 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+
+        //富文本
         msgTxt: cc.RichText
     },
 

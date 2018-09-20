@@ -1,4 +1,6 @@
-
+/**
+ * 
+ */
 cc.Class({
     extends: cc.Component,
 
@@ -11,16 +13,19 @@ cc.Class({
         this.isCaptainNode.active = false;
     },
 
+    //
     init: function (player) {
         this.uid = player.uid;
         this.camp = player.camp;
         this.nicknameTxt.string = player.nickname;
     },
 
+    //
     setColor: function(color) {
         this.nicknameTxt.node.color = color;
     },
 
+    //
     setCaptain: function(isCaptain){
         this.isCaptainNode.active = isCaptain;
     },
