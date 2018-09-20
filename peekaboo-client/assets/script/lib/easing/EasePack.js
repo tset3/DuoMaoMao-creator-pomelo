@@ -9,36 +9,36 @@
  * 
  * @author: Jack Doyle, jack@greensock.com
  **/
-var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(global) !== "undefined") ? global : this || window; //helps ensure compatibility with AMD/RequireJS and CommonJS/Node
-(_gsScope._gsQueue || (_gsScope._gsQueue = [])).push( function() {
+var _gsScope = (typeof (module) !== "undefined" && module.exports && typeof (global) !== "undefined") ? global : this || window; //helps ensure compatibility with AMD/RequireJS and CommonJS/Node
+(_gsScope._gsQueue || (_gsScope._gsQueue = [])).push(function () {
 
 	"use strict";
 
-	_gsScope._gsDefine("easing.Back", ["easing.Ease"], function(Ease) {
-		
+	_gsScope._gsDefine("easing.Back", ["easing.Ease"], function (Ease) {
+
 		var w = (_gsScope.GreenSockGlobals || _gsScope),
 			gs = w.com.greensock,
 			_2PI = Math.PI * 2,
 			_HALF_PI = Math.PI / 2,
 			_class = gs._class,
-			_create = function(n, f) {
-				var C = _class("easing." + n, function(){}, true),
+			_create = function (n, f) {
+				var C = _class("easing." + n, function () { }, true),
 					p = C.prototype = new Ease();
 				p.constructor = C;
 				p.getRatio = f;
 				return C;
 			},
-			_easeReg = Ease.register || function(){}, //put an empty function in place just as a safety measure in case someone loads an OLD version of TweenLite.js where Ease.register doesn't exist.
-			_wrap = function(name, EaseOut, EaseIn, EaseInOut, aliases) {
-				var C = _class("easing."+name, {
-					easeOut:new EaseOut(),
-					easeIn:new EaseIn(),
-					easeInOut:new EaseInOut()
+			_easeReg = Ease.register || function () { }, //put an empty function in place just as a safety measure in case someone loads an OLD version of TweenLite.js where Ease.register doesn't exist.
+			_wrap = function (name, EaseOut, EaseIn, EaseInOut, aliases) {
+				var C = _class("easing." + name, {
+					easeOut: new EaseOut(),
+					easeIn: new EaseIn(),
+					easeInOut: new EaseInOut()
 				}, true);
 				_easeReg(C, name);
 				return C;
 			},
-			EasePoint = function(time, value, next) {
+			EasePoint = function (time, value, next) {
 				this.t = time;
 				this.v = value;
 				if (next) {
@@ -50,35 +50,35 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 			},
 
 			//Back
-			_createBack = function(n, f) {
-				var C = _class("easing." + n, function(overshoot) {
-						this._p1 = (overshoot || overshoot === 0) ? overshoot : 1.70158;
-						this._p2 = this._p1 * 1.525;
-					}, true), 
+			_createBack = function (n, f) {
+				var C = _class("easing." + n, function (overshoot) {
+					this._p1 = (overshoot || overshoot === 0) ? overshoot : 1.70158;
+					this._p2 = this._p1 * 1.525;
+				}, true),
 					p = C.prototype = new Ease();
 				p.constructor = C;
 				p.getRatio = f;
-				p.config = function(overshoot) {
+				p.config = function (overshoot) {
 					return new C(overshoot);
 				};
 				return C;
 			},
 
 			Back = _wrap("Back",
-				_createBack("BackOut", function(p) {
+				_createBack("BackOut", function (p) {
 					return ((p = p - 1) * p * ((this._p1 + 1) * p + this._p1) + 1);
 				}),
-				_createBack("BackIn", function(p) {
+				_createBack("BackIn", function (p) {
 					return p * p * ((this._p1 + 1) * p - this._p1);
 				}),
-				_createBack("BackInOut", function(p) {
+				_createBack("BackInOut", function (p) {
 					return ((p *= 2) < 1) ? 0.5 * p * p * ((this._p2 + 1) * p - this._p2) : 0.5 * ((p -= 2) * p * ((this._p2 + 1) * p + this._p2) + 2);
 				})
 			),
 
 
 			//SlowMo
-			SlowMo = _class("easing.SlowMo", function(linearRatio, power, yoyoMode) {
+			SlowMo = _class("easing.SlowMo", function (linearRatio, power, yoyoMode) {
 				power = (power || power === 0) ? power : 0.7;
 				if (linearRatio == null) {
 					linearRatio = 0.7;
@@ -93,9 +93,9 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 			}, true),
 			p = SlowMo.prototype = new Ease(),
 			SteppedEase, RoughEase, _createElastic;
-			
+
 		p.constructor = SlowMo;
-		p.getRatio = function(p) {
+		p.getRatio = function (p) {
 			var r = p + (0.5 - p) * this._p;
 			if (p < this._p1) {
 				return this._calcEnd ? 1 - ((p = 1 - (p / this._p1)) * p) : r - ((p = 1 - (p / this._p1)) * p * p * p * r);
@@ -105,21 +105,21 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 			return this._calcEnd ? 1 : r;
 		};
 		SlowMo.ease = new SlowMo(0.7, 0.7);
-		
-		p.config = SlowMo.config = function(linearRatio, power, yoyoMode) {
+
+		p.config = SlowMo.config = function (linearRatio, power, yoyoMode) {
 			return new SlowMo(linearRatio, power, yoyoMode);
 		};
 
 
 		//SteppedEase
-		SteppedEase = _class("easing.SteppedEase", function(steps) {
-				steps = steps || 1;
-				this._p1 = 1 / steps;
-				this._p2 = steps + 1;
-			}, true);
-		p = SteppedEase.prototype = new Ease();	
+		SteppedEase = _class("easing.SteppedEase", function (steps) {
+			steps = steps || 1;
+			this._p1 = 1 / steps;
+			this._p2 = steps + 1;
+		}, true);
+		p = SteppedEase.prototype = new Ease();
 		p.constructor = SteppedEase;
-		p.getRatio = function(p) {
+		p.getRatio = function (p) {
 			if (p < 0) {
 				p = 0;
 			} else if (p >= 1) {
@@ -127,13 +127,13 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 			}
 			return ((this._p2 * p) >> 0) * this._p1;
 		};
-		p.config = SteppedEase.config = function(steps) {
+		p.config = SteppedEase.config = function (steps) {
 			return new SteppedEase(steps);
 		};
 
 
 		//RoughEase
-		RoughEase = _class("easing.RoughEase", function(vars) {
+		RoughEase = _class("easing.RoughEase", function (vars) {
 			vars = vars || {};
 			var taper = vars.taper || "none",
 				a = [],
@@ -143,7 +143,7 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 				randomize = (vars.randomize !== false),
 				clamp = (vars.clamp === true),
 				template = (vars.template instanceof Ease) ? vars.template : null,
-				strength = (typeof(vars.strength) === "number") ? vars.strength * 0.4 : 0.4,
+				strength = (typeof (vars.strength) === "number") ? vars.strength * 0.4 : 0.4,
 				x, y, bump, invX, obj, pnt;
 			while (--i > -1) {
 				x = randomize ? Math.random() : (1 / points) * i;
@@ -176,9 +176,9 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 						y = 0;
 					}
 				}
-				a[cnt++] = {x:x, y:y};
+				a[cnt++] = { x: x, y: y };
 			}
-			a.sort(function(a, b) {
+			a.sort(function (a, b) {
 				return a.x - b.x;
 			});
 
@@ -193,7 +193,7 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 		}, true);
 		p = RoughEase.prototype = new Ease();
 		p.constructor = RoughEase;
-		p.getRatio = function(p) {
+		p.getRatio = function (p) {
 			var pnt = this._prev;
 			if (p > pnt.t) {
 				while (pnt.next && p >= pnt.t) {
@@ -208,7 +208,7 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 			this._prev = pnt;
 			return (pnt.v + ((p - pnt.t) / pnt.gap) * pnt.c);
 		};
-		p.config = function(vars) {
+		p.config = function (vars) {
 			return new RoughEase(vars);
 		};
 		RoughEase.ease = new RoughEase();
@@ -216,7 +216,7 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 
 		//Bounce
 		_wrap("Bounce",
-			_create("BounceOut", function(p) {
+			_create("BounceOut", function (p) {
 				if (p < 1 / 2.75) {
 					return 7.5625 * p * p;
 				} else if (p < 2 / 2.75) {
@@ -226,7 +226,7 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 				}
 				return 7.5625 * (p -= 2.625 / 2.75) * p + 0.984375;
 			}),
-			_create("BounceIn", function(p) {
+			_create("BounceIn", function (p) {
 				if ((p = 1 - p) < 1 / 2.75) {
 					return 1 - (7.5625 * p * p);
 				} else if (p < 2 / 2.75) {
@@ -236,7 +236,7 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 				}
 				return 1 - (7.5625 * (p -= 2.625 / 2.75) * p + 0.984375);
 			}),
-			_create("BounceInOut", function(p) {
+			_create("BounceInOut", function (p) {
 				var invert = (p < 0.5);
 				if (invert) {
 					p = 1 - (p * 2);
@@ -259,56 +259,56 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 
 		//CIRC
 		_wrap("Circ",
-			_create("CircOut", function(p) {
+			_create("CircOut", function (p) {
 				return Math.sqrt(1 - (p = p - 1) * p);
 			}),
-			_create("CircIn", function(p) {
+			_create("CircIn", function (p) {
 				return -(Math.sqrt(1 - (p * p)) - 1);
 			}),
-			_create("CircInOut", function(p) {
-				return ((p*=2) < 1) ? -0.5 * (Math.sqrt(1 - p * p) - 1) : 0.5 * (Math.sqrt(1 - (p -= 2) * p) + 1);
+			_create("CircInOut", function (p) {
+				return ((p *= 2) < 1) ? -0.5 * (Math.sqrt(1 - p * p) - 1) : 0.5 * (Math.sqrt(1 - (p -= 2) * p) + 1);
 			})
 		);
 
 
 		//Elastic
-		_createElastic = function(n, f, def) {
-			var C = _class("easing." + n, function(amplitude, period) {
-					this._p1 = (amplitude >= 1) ? amplitude : 1; //note: if amplitude is < 1, we simply adjust the period for a more natural feel. Otherwise the math doesn't work right and the curve starts at 1.
-					this._p2 = (period || def) / (amplitude < 1 ? amplitude : 1);
-					this._p3 = this._p2 / _2PI * (Math.asin(1 / this._p1) || 0);
-					this._p2 = _2PI / this._p2; //precalculate to optimize
-				}, true),
+		_createElastic = function (n, f, def) {
+			var C = _class("easing." + n, function (amplitude, period) {
+				this._p1 = (amplitude >= 1) ? amplitude : 1; //note: if amplitude is < 1, we simply adjust the period for a more natural feel. Otherwise the math doesn't work right and the curve starts at 1.
+				this._p2 = (period || def) / (amplitude < 1 ? amplitude : 1);
+				this._p3 = this._p2 / _2PI * (Math.asin(1 / this._p1) || 0);
+				this._p2 = _2PI / this._p2; //precalculate to optimize
+			}, true),
 				p = C.prototype = new Ease();
 			p.constructor = C;
 			p.getRatio = f;
-			p.config = function(amplitude, period) {
+			p.config = function (amplitude, period) {
 				return new C(amplitude, period);
 			};
 			return C;
 		};
 		_wrap("Elastic",
-			_createElastic("ElasticOut", function(p) {
-				return this._p1 * Math.pow(2, -10 * p) * Math.sin( (p - this._p3) * this._p2 ) + 1;
+			_createElastic("ElasticOut", function (p) {
+				return this._p1 * Math.pow(2, -10 * p) * Math.sin((p - this._p3) * this._p2) + 1;
 			}, 0.3),
-			_createElastic("ElasticIn", function(p) {
-				return -(this._p1 * Math.pow(2, 10 * (p -= 1)) * Math.sin( (p - this._p3) * this._p2 ));
+			_createElastic("ElasticIn", function (p) {
+				return -(this._p1 * Math.pow(2, 10 * (p -= 1)) * Math.sin((p - this._p3) * this._p2));
 			}, 0.3),
-			_createElastic("ElasticInOut", function(p) {
-				return ((p *= 2) < 1) ? -0.5 * (this._p1 * Math.pow(2, 10 * (p -= 1)) * Math.sin( (p - this._p3) * this._p2)) : this._p1 * Math.pow(2, -10 *(p -= 1)) * Math.sin( (p - this._p3) * this._p2 ) * 0.5 + 1;
+			_createElastic("ElasticInOut", function (p) {
+				return ((p *= 2) < 1) ? -0.5 * (this._p1 * Math.pow(2, 10 * (p -= 1)) * Math.sin((p - this._p3) * this._p2)) : this._p1 * Math.pow(2, -10 * (p -= 1)) * Math.sin((p - this._p3) * this._p2) * 0.5 + 1;
 			}, 0.45)
 		);
 
 
 		//Expo
 		_wrap("Expo",
-			_create("ExpoOut", function(p) {
+			_create("ExpoOut", function (p) {
 				return 1 - Math.pow(2, -10 * p);
 			}),
-			_create("ExpoIn", function(p) {
+			_create("ExpoIn", function (p) {
 				return Math.pow(2, 10 * (p - 1)) - 0.001;
 			}),
-			_create("ExpoInOut", function(p) {
+			_create("ExpoInOut", function (p) {
 				return ((p *= 2) < 1) ? 0.5 * Math.pow(2, 10 * (p - 1)) : 0.5 * (2 - Math.pow(2, -10 * (p - 1)));
 			})
 		);
@@ -316,43 +316,43 @@ var _gsScope = (typeof(module) !== "undefined" && module.exports && typeof(globa
 
 		//Sine
 		_wrap("Sine",
-			_create("SineOut", function(p) {
+			_create("SineOut", function (p) {
 				return Math.sin(p * _HALF_PI);
 			}),
-			_create("SineIn", function(p) {
+			_create("SineIn", function (p) {
 				return -Math.cos(p * _HALF_PI) + 1;
 			}),
-			_create("SineInOut", function(p) {
+			_create("SineInOut", function (p) {
 				return -0.5 * (Math.cos(Math.PI * p) - 1);
 			})
 		);
 
 		_class("easing.EaseLookup", {
-				find:function(s) {
-					return Ease.map[s];
-				}
-			}, true);
+			find: function (s) {
+				return Ease.map[s];
+			}
+		}, true);
 
 		//register the non-standard eases
 		_easeReg(w.SlowMo, "SlowMo", "ease,");
 		_easeReg(RoughEase, "RoughEase", "ease,");
 		_easeReg(SteppedEase, "SteppedEase", "ease,");
-		
+
 		return Back;
-		
+
 	}, true);
 
 }); if (_gsScope._gsDefine) { _gsScope._gsQueue.pop()(); }
 
 //export to AMD/RequireJS and CommonJS/Node (precursor to full modular build system coming at a later date)
-(function() {
+(function () {
 	"use strict";
-	var getGlobal = function() {
+	var getGlobal = function () {
 		return (_gsScope.GreenSockGlobals || _gsScope);
 	};
-	if (typeof(define) === "function" && define.amd) { //AMD
+	if (typeof (define) === "function" && define.amd) { //AMD
 		define(["TweenLite"], getGlobal);
-	} else if (typeof(module) !== "undefined" && module.exports) { //node
+	} else if (typeof (module) !== "undefined" && module.exports) { //node
 		require("../TweenLite.js");
 		module.exports = getGlobal();
 	}

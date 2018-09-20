@@ -1,11 +1,26 @@
+/**
+ * 游戏当中消息
+ */
 
-
+//
 var net = require('net');
+
+//
 var code = require('code');
+
+//
 var EventDispatcher = require('EventDispatcher');
+
+//
 var EventType = require('EventType');
+
+//
 var SceneManager = require('SceneManager');
+
+//
 var GameData = require('GameData');
+
+//
 var Player = require('Player');
 
 /**
@@ -22,38 +37,37 @@ cc.Class({
         cc.game.addPersistRootNode(this.node);
     },
 
-    start: function(){
+    start: function () {
 
         // 有玩家离线
-        net.on('onUserLeave', function(data) {
+        net.on('onUserLeave', function (data) {
             GameData.removePlayer(data.uid);
-            if(data.newCaptainUid){
+            if (data.newCaptainUid) {
                 GameData.captainUid = data.newCaptainUid;
             }
             EventDispatcher.dispatch(EventType.SYNC_USERLEAVE, data);
         });
 
         // 同步玩家进入房间
-        net.on('onEntryRoom', function(data) {
+        net.on('onEntryRoom', function (data) {
             GameData.players.push(data.user);
             EventDispatcher.dispatch(EventType.SYNC_ENTRYROOM, data);
         });
 
         // 同步选择阵营
-        net.on('onSyncSelectCamp', function(data){
+        net.on('onSyncSelectCamp', function (data) {
             var player = GameData.getPlayer(data.uid);
             player.camp = data.camp;
             EventDispatcher.dispatch(EventType.SYNC_SELECTCAMP, data);
         });
 
         // 聊天
-        net.on('onChatMsg', function(data) {
+        net.on('onChatMsg', function (data) {
             EventDispatcher.dispatch(EventType.SYNC_CHATMSG, data);
         });
 
-
         // 同步开始游戏了
-        net.on('onStartGame', function(data) {
+        net.on('onStartGame', function (data) {
             GameData.isStart = true;
             GameData.hideItemIndexs = data.hideItemIndexs;
             GameData.generateItemIndexs = data.generateItemIndexs;
@@ -70,7 +84,7 @@ cc.Class({
                 player.isInGame = true;
                 player.position = gp.position;
                 player.speed = gp.speed;
-                if(player.uid === Player.uid){
+                if (player.uid === Player.uid) {
                     Player.itemId = gp.itemId;
                     Player.camp = gp.camp;
                     Player.isInGame = true;
@@ -78,7 +92,9 @@ cc.Class({
                 }
                 GameData.CanSatrtGamePlayers.push(player.uid);
             }
-            if(isCanInGame){
+
+            //
+            if (isCanInGame) {
                 SceneManager.load('arena');
             }
         });
@@ -94,12 +110,12 @@ cc.Class({
         })
 
         // 每回合玩家的操作指令
-        net.on('onReveal', function(data) {
+        net.on('onReveal', function (data) {
             EventDispatcher.dispatch(EventType.SYNC_REVEAL, data);
         });
 
         // 被发现
-        net.on('onWasfound', function(data) {
+        net.on('onWasfound', function (data) {
             EventDispatcher.dispatch(EventType.SYNC_WASFOUND, data);
         });
 
