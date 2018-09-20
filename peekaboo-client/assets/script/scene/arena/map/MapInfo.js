@@ -2,9 +2,10 @@
 var utils = require('utils');
 var AtlasStorage = require('AtlasStorage');
 
-// 单列
+// 单例
 var instance = null;
-module.exports = function(){
+
+module.exports = function () {
     return instance;
 };
 
@@ -27,59 +28,72 @@ cc.Class({
     },
 
     onLoad: function () {
+
+
         instance = this;
+
         this.tiledMap = this.node.getComponent(cc.TiledMap);
         this.groundNode = this.tiledMap.getLayer('ground');
         this.wallNode = this.tiledMap.getLayer('wall');
         this.itemNode = this.tiledMap.getLayer('item');
         this.bornPointNode0 = this.tiledMap.getLayer('bornPoint0');
         this.bornPointNode1 = this.tiledMap.getLayer('bornPoint1');
+
         // 格子大小
         this.girdSize = this.groundNode.getLayerSize();
         // console.log(this.girdSize);
+
         // tile大小
         this.tileSize = this.groundNode.getMapTileSize();
-        this.tielSizeHalf = cc.p(this.tileSize.width*0.5, this.tileSize.height*0.5);
+        this.tielSizeHalf = cc.p(this.tileSize.width * 0.5, this.tileSize.height * 0.5);
 
         // 所有空地
         this.emptyGrounds = [];
+
         // 内墙精灵
         this.wallSprites = [];
+
         // 出生点
         var bornPoints0 = '';
         var bornPoints1 = '';
 
+        //
         for (var x = 0; x < this.girdSize.width; x++) {
             for (var y = 0; y < this.girdSize.height; y++) {
+
                 // 外墙 和 内墙
-                if(x === 0 || y === 0 
-                    || x === this.girdSize.width-1 
-                    || y === this.girdSize.height-1
+                if (x === 0 || y === 0
+                    || x === this.girdSize.width - 1
+                    || y === this.girdSize.height - 1
                     || this.wallNode.getTileGIDAt(x, y)
-                    ){
+                ) {
                     let collision = cc.instantiate(this.wallConllisionPrefab);
-                    let cx = x, cy = this.girdSize.height-1-y;
-                    collision.position = cc.p(cx*this.tileSize.width, cy*this.tileSize.height);
+                    let cx = x, cy = this.girdSize.height - 1 - y;
+                    collision.position = cc.p(cx * this.tileSize.width, cy * this.tileSize.height);
                     this.conllisionNode.addChild(collision);
                     continue;
                 }
+
                 // 地面道具
-                if(this.itemNode.getTileGIDAt(x, y)){
+                if (this.itemNode.getTileGIDAt(x, y)) {
                     let tile = this.itemNode.getTileAt(x, y);
                     this.wallSprites.push(tile);
                     continue;
                 }
-                this.emptyGrounds.push(cc.p(x, this.girdSize.height-1-y));
+                this.emptyGrounds.push(cc.p(x, this.girdSize.height - 1 - y));
+
                 // 出生点
-                if(this.bornPointNode0.getTileGIDAt(x, y)){
+                if (this.bornPointNode0.getTileGIDAt(x, y)) {
                     let tile = this.bornPointNode0.getTileAt(x, y);
                     tile.visible = false;
-                    bornPoints0 += '{x:' + x + ', ' + 'y:' + (this.girdSize.height-1-y) + '},';
+                    bornPoints0 += '{x:' + x + ', ' + 'y:' + (this.girdSize.height - 1 - y) + '},';
                 }
-                if(this.bornPointNode1.getTileGIDAt(x, y)){
+
+                //
+                if (this.bornPointNode1.getTileGIDAt(x, y)) {
                     let tile = this.bornPointNode1.getTileAt(x, y);
                     tile.visible = false;
-                    bornPoints1 += '{x:' + x + ', ' + 'y:' + (this.girdSize.height-1-y) + '},';
+                    bornPoints1 += '{x:' + x + ', ' + 'y:' + (this.girdSize.height - 1 - y) + '},';
                 }
             }
         }
@@ -87,7 +101,7 @@ cc.Class({
         // 门的碰撞点
         this.doorsPos = [];
         for (var i = 14; i < 36; i++) {
-            this.doorsPos.push({x: i, y: 22});
+            this.doorsPos.push({ x: i, y: 22 });
         }
 
         // console.log('空地=', this.emptyGrounds.length);
@@ -97,7 +111,7 @@ cc.Class({
     },
 
     // 随机隐藏道具
-    randomHideItem: function(indexs){
+    randomHideItem: function (indexs) {
         for (var i = 0; i < indexs.length; i++) {
             this.wallSprites[indexs[i]].visible = false;
             // this.wallSprites[i].opacity = 0;
@@ -105,20 +119,20 @@ cc.Class({
     },
 
     // 随机生成道具
-    randomGenerateItem: function(indexs){
+    randomGenerateItem: function (indexs) {
         for (var i = 0; i < indexs.length; i++) {
             var point = this.emptyGrounds[indexs[i]];
             // console.log(point);
             var item = cc.instantiate(this.randomItemPrefab);
             var itemId = i % 12 + 1;
             item.getComponent(cc.Sprite).spriteFrame = AtlasStorage().getItemSprite(itemId);
-            item.position = cc.p(point.x*this.tileSize.width, point.y*this.tileSize.height);
+            item.position = cc.p(point.x * this.tileSize.width, point.y * this.tileSize.height);
             this.randomItemNode.addChild(item);
         }
     },
 
     // 添加一个角色
-    addRole: function(node){
+    addRole: function (node) {
         this.roleNode.addChild(node);
         // 设置位置
         // var bornPoints = this['bornPoints'+camp];
@@ -132,13 +146,16 @@ cc.Class({
     },
 
     // 检查是否碰撞
-    isCollide: function(x, y){
-        y = this.girdSize.height-1-y;
-        if(x === 0 || y === 0 || x >= this.girdSize.width-1 || y >= this.girdSize.height-1)
+    isCollide: function (x, y) {
+        y = this.girdSize.height - 1 - y;
+        if (x === 0 || y === 0 || x >= this.girdSize.width - 1 || y >= this.girdSize.height - 1){
             return true;
-        if(this.doorNode.active){
-            var arr = this.doorsPos.filter((m)=> m.x === x && m.y === y);
-            if(arr.length !== 0){
+        }
+            
+        //
+        if (this.doorNode.active) {
+            var arr = this.doorsPos.filter((m) => m.x === x && m.y === y);
+            if (arr.length !== 0) {
                 return true;
             }
         }
@@ -146,49 +163,53 @@ cc.Class({
     },
 
     // 是否和墙发生碰撞
-    isWallCollide: function(position, direction){
+    isWallCollide: function (position, direction) {
         var x = position.x + direction.x,
             y = position.y + direction.y;
 
-        var tx = (x - this.tielSizeHalf.x)/this.tileSize.width,
-            ty = (y - this.tielSizeHalf.y)/this.tileSize.height;
+        var tx = (x - this.tielSizeHalf.x) / this.tileSize.width,
+            ty = (y - this.tielSizeHalf.y) / this.tileSize.height;
 
-        var ox = (position.x - this.tielSizeHalf.x)/this.tileSize.width,
-            oy = (position.y - this.tielSizeHalf.y)/this.tileSize.height;
+        var ox = (position.x - this.tielSizeHalf.x) / this.tileSize.width,
+            oy = (position.y - this.tielSizeHalf.y) / this.tileSize.height;
+
         var nx1 = Math.floor(ox),
             nx2 = Math.ceil(ox),
             ny1 = Math.floor(oy),
             ny2 = Math.ceil(oy);
 
-        if(direction.x < 0){// 左
+        if (direction.x < 0) {// 左
             let nx = Math.floor(tx);
-            if(this.isCollide(nx, ny1) || this.isCollide(nx, ny2)){
-                x = (nx+1)*this.tileSize.width + this.tielSizeHalf.x;
+            if (this.isCollide(nx, ny1) || this.isCollide(nx, ny2)) {
+                x = (nx + 1) * this.tileSize.width + this.tielSizeHalf.x;
                 // return false;
             }
-        } else if(direction.x > 0){// 右
+        } else if (direction.x > 0) {// 右
             let nx = Math.ceil(tx);
-            if(this.isCollide(nx, ny1) || this.isCollide(nx, ny2)){
-                x = (nx-1)*this.tileSize.width + this.tielSizeHalf.x;
+            if (this.isCollide(nx, ny1) || this.isCollide(nx, ny2)) {
+                x = (nx - 1) * this.tileSize.width + this.tielSizeHalf.x;
                 // return false;
             }
         }
-        if(direction.y < 0){// 下
+
+        // 下
+        if (direction.y < 0) {
             let ny = Math.floor(ty);
-            if(this.isCollide(nx1, ny) || this.isCollide(nx2, ny)){
-                y = (ny+1)*this.tileSize.height + this.tielSizeHalf.y;
+            if (this.isCollide(nx1, ny) || this.isCollide(nx2, ny)) {
+                y = (ny + 1) * this.tileSize.height + this.tielSizeHalf.y;
                 // return false;
             }
         }
-        if(direction.y > 0){// 上
+
+        // 上
+        if (direction.y > 0) { 
             let ny = Math.ceil(ty);
-            if(this.isCollide(nx1, ny) || this.isCollide(nx2, ny)){
-                y = (ny-1)*this.tileSize.height + this.tielSizeHalf.y;
+            if (this.isCollide(nx1, ny) || this.isCollide(nx2, ny)) {
+                y = (ny - 1) * this.tileSize.height + this.tielSizeHalf.y;
                 // return false;
             }
         }
         return cc.p(x, y);
-        // return true;
     },
 
 });

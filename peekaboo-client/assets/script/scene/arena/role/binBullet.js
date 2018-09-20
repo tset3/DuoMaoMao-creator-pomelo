@@ -16,7 +16,7 @@ cc.Class({
     },
 
     // 移动到目标位置
-    move: function(owner, startPos, targetPos){
+    move: function (owner, startPos, targetPos) {
         this.owner = owner;
         this.node.rotation = 90 - utils.rotation(startPos, targetPos);
         this.node.position = startPos;
@@ -27,21 +27,26 @@ cc.Class({
         var nx = rx + startPos.x;
         var ny = ry + startPos.y;
 
-        Tween.to(this.node, 0.4, {x: nx, y: ny, onComplete: ()=>{
-            this.toDestroy();
-        }});
+        Tween.to(this.node, 0.4, {
+            x: nx, y: ny, onComplete: () => {
+                this.toDestroy();
+            }
+        });
     },
 
-    toDestroy: function(){
+    // 
+    toDestroy: function () {
         Tween.killTweensOf(this.node, false);
-        Tween.to(this.node, 0.5, {opacity: 0, onComplete: ()=>{
-            this.node.destroy();
-        }});
+        Tween.to(this.node, 0.5, {
+            opacity: 0, onComplete: () => {
+                this.node.destroy();
+            }
+        });
     },
 
     // 碰撞
     onCollisionEnter: function (other, self) {
-        if(other.node.group === 'role'){
+        if (other.node.group === 'role') {
             // console.log('on collision role');
             var bin = other.node.getComponent('DodgeRole');
             bin.wasfound();
@@ -49,7 +54,7 @@ cc.Class({
             // 这里射击人加子弹
             this.owner.addBullet(3);
 
-        } else if(other.node.group === 'wall'){
+        } else if (other.node.group === 'wall') {
             // console.log('on collision wall');
         }
         this.toDestroy();
