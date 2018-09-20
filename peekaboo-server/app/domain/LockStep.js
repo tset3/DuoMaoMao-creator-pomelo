@@ -20,17 +20,17 @@ var prepareTimeout = null;
 // 开启
 exp.startTurn = function (_channel) {
 	channel = _channel;
-	interval = setInterval(onTurn, 1000/30);
-	
+	interval = setInterval(onTurn, 1000 / 30);
+
 	// 
-	prepareTimeout = setTimeout(function(){
+	prepareTimeout = setTimeout(function () {
 		// 通知可以开始了
 		channel.pushMessage('onStartSearch', {});
 		// 记时 时间到了 就结束
-		timeout = setTimeout(function(){
+		timeout = setTimeout(function () {
 			exp.stopTurn(0);
-		}, exp.SEARCH_TIME*1000);
-	}, exp.PREPARE_TIME*1000);
+		}, exp.SEARCH_TIME * 1000);
+	}, exp.PREPARE_TIME * 1000);
 };
 
 // 关闭
@@ -44,19 +44,29 @@ exp.stopTurn = function (camp) {
 
 // 玩家离开
 exp.leave = function (uid, sid) {
-	if(!channel)
+	if (!channel){
 		return true;
+	}
+	
+	//
 	channel.leave(uid, sid);
-	if(channel.getMembers().length <= 1){
+
+	//
+	if (channel.getMembers().length <= 1) {
 		return channel.getMembers()[0];
 	}
+
 	return false;
 };
 
 // 同步开火
 exp.onFire = function (uid, startPos, targetPos) {
-	if(!channel)
+
+	if (!channel){
 		return;
+	}
+	
+	//广播开火
 	channel.pushMessage('onFire', {
 		uid: uid,
 		startPos: startPos,
@@ -66,8 +76,12 @@ exp.onFire = function (uid, startPos, targetPos) {
 
 // 同步找到了
 exp.onWasfound = function (uid, curfoundCount) {
-	if(!channel)
+
+	if (!channel){
 		return;
+	}
+	
+	//
 	channel.pushMessage('onWasfound', {
 		uid: uid,
 		curfoundCount: curfoundCount
@@ -75,11 +89,14 @@ exp.onWasfound = function (uid, curfoundCount) {
 };
 
 // 游戏结束
-exp.onGameOver = function(camp) {
-	if(!channel)
+exp.onGameOver = function (camp) {
+	if (!channel){
 		return;
-	if(channel.getMembers().length !== 0){
-		channel.pushMessage('onGameOver', {camp: camp});
+	}
+		
+	//
+	if (channel.getMembers().length !== 0) {
+		channel.pushMessage('onGameOver', { camp: camp });
 	}
 	channel.destroy();
 	channel = null;
@@ -87,11 +104,12 @@ exp.onGameOver = function(camp) {
 
 
 // 每回合同步玩家 指令
-function onTurn(){
-	
+function onTurn() {
 	var worldStates = GameManager.userStutes();
-	if(worldStates.length === 0)
+	if (worldStates.length === 0){
 		return;
-	
-	channel.pushMessage('onReveal', {worldStates: worldStates});
+	}
+		
+	//
+	channel.pushMessage('onReveal', { worldStates: worldStates });
 }

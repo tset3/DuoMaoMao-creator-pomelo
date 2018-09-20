@@ -3,20 +3,20 @@
 var GameManager = require('../../../domain/GameManager');
 var LockStep = require('../../../domain/LockStep');
 
-module.exports = function(app) {
-  	return new Handler(app);
+module.exports = function (app) {
+	return new Handler(app);
 };
 
-var Handler = function(app) {
-  	this.app = app;
-  	this.syncChannel = app.get('channelService').getChannel('syncChannel', true);
+var Handler = function (app) {
+	this.app = app;
+	this.syncChannel = app.get('channelService').getChannel('syncChannel', true);
 };
 
 /**
  * 申请开火
  */
-Handler.prototype.applyFire  = function(msg, session, next) {
-	
+Handler.prototype.applyFire = function (msg, session, next) {
+
 	var user = GameManager.getUser(session.uid);
 
 	// 这里同步给其他玩家
@@ -26,12 +26,12 @@ Handler.prototype.applyFire  = function(msg, session, next) {
 /**
  * 提交指令
  */
-Handler.prototype.commitInstructions  = function(msg, session, next) {
+Handler.prototype.commitInstructions = function (msg, session, next) {
 	LockStep.collectInstruction(session.uid, msg.direction, msg.position);
 };
 
 // 处理输入
-Handler.prototype.processInputs = function(msg, session, next) {
+Handler.prototype.processInputs = function (msg, session, next) {
 
 	var user = GameManager.getUser(session.uid);
 
@@ -41,7 +41,7 @@ Handler.prototype.processInputs = function(msg, session, next) {
 /**
  * 被找到了
  */
-Handler.prototype.wasfound  = function(msg, session, next) {
+Handler.prototype.wasfound = function (msg, session, next) {
 	var user = GameManager.getUser(session.uid);
 	user.itemId = 0;
 
@@ -49,7 +49,7 @@ Handler.prototype.wasfound  = function(msg, session, next) {
 
 	LockStep.onWasfound(user.uid, curfoundCount);
 
-	if(GameManager.isAllFound()){
+	if (GameManager.isAllFound()) {
 		LockStep.stopTurn(1);
 	}
 };
@@ -57,11 +57,11 @@ Handler.prototype.wasfound  = function(msg, session, next) {
 /**
  * 退出游戏
  */
-Handler.prototype.exitGame  = function(msg, session, next) {
+Handler.prototype.exitGame = function (msg, session, next) {
 	var user = GameManager.getUser(session.uid);
 	user.isInGame = false;
 
-	next(null, {code: 200});
+	next(null, { code: 200 });
 
-	this.syncChannel.pushMessage('onExitGame', {uid: user.uid});
+	this.syncChannel.pushMessage('onExitGame', { uid: user.uid });
 };

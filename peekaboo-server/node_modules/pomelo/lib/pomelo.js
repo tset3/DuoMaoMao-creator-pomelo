@@ -82,7 +82,7 @@ Pomelo.createApp = function (opts) {
  * Get application
  */
 Object.defineProperty(Pomelo, 'app', {
-  get:function () {
+  get: function () {
     return self.app;
   }
 });
@@ -96,7 +96,7 @@ fs.readdirSync(__dirname + '/components').forEach(function (filename) {
   }
   var name = path.basename(filename, '.js');
   var _load = load.bind(null, './components/', name);
-  
+
   Pomelo.components.__defineGetter__(name, _load);
   Pomelo.__defineGetter__(name, _load);
 });
@@ -107,7 +107,7 @@ fs.readdirSync(__dirname + '/filters/handler').forEach(function (filename) {
   }
   var name = path.basename(filename, '.js');
   var _load = load.bind(null, './filters/handler/', name);
-  
+
   Pomelo.filters.__defineGetter__(name, _load);
   Pomelo.__defineGetter__(name, _load);
 });
@@ -118,7 +118,7 @@ fs.readdirSync(__dirname + '/filters/rpc').forEach(function (filename) {
   }
   var name = path.basename(filename, '.js');
   var _load = load.bind(null, './filters/rpc/', name);
-  
+
   Pomelo.rpcFilters.__defineGetter__(name, _load);
 });
 

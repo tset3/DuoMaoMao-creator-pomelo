@@ -8,13 +8,13 @@ var app = pomelo.createApp();
 app.set('name', 'peekaboo-server');
 
 // app configuration
-app.configure('production|development', 'connector', function(){
-  	app.set('connectorConfig',
+app.configure('production|development', 'connector', function () {
+  app.set('connectorConfig',
     {
-      connector : pomelo.connectors.hybridconnector,
+      connector: pomelo.connectors.hybridconnector,
       // heartbeat : 3,
-      useDict : true,
-      useProtobuf : true
+      useDict: true,
+      useProtobuf: true
     });
 });
 
