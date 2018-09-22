@@ -1,6 +1,6 @@
 
 /**
- * 事件驱动
+ * 事件管理器
  */
 
 var EventDispatcher = module.exports;

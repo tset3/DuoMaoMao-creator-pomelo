@@ -2,6 +2,7 @@
   1: [function (require, module, exports) {
     var Util = require('util');
 
+    // 跑的是本地版本
     function checkCocos2dJsb() {
       if (typeof cc !== 'undefined' && cc && cc.sys && cc.sys.isNative) {
         return true;
@@ -2625,14 +2626,27 @@
         };
       }
 
+      // 这样会让window
       var root = window;
+
+
+      // pomelo对象继承于EventEmitter发射器
       var pomelo = Object.create(EventEmitter.prototype); // object extend from object
+
+      // 让pomelo这个对象成为一个全局对象
       root.pomelo = pomelo;
+
+      // WebSocket 对象
       var socket = null;
+
+      // 第几个请求
       var reqId = 0;
+
+      // 请求id对应的回调
       var callbacks = {};
       var handlers = {};
-      //Map from request id to route
+
+      //-----Map from request id to route-----
       var routeMap = {};
       var dict = {};    // route string to code
       var abbrs = {};   // code to route string
@@ -2670,20 +2684,31 @@
         }
       };
 
+      // 网络初始化完的回调函数
       var initCallback = null;
 
+      // pomelo初始化
       pomelo.init = function (params, cb) {
+
+        // 初始化客户端网络初始化完的回调
         initCallback = cb;
+
+        //解析服务器的主机和端口号
         var host = params.host;
         var port = params.port;
 
+        // 初始化编码器，自己没有传入，则用默认编码器
         encode = params.encode || defaultEncode;
+
+        // 初始化解码器，没有传入，则用默认解码器
         decode = params.decode || defaultDecode;
 
+        // 拼接为ws://127.0.0.1:50100这样的形式
         var url = 'ws://' + host;
         if (port) {
           url += ':' + port;
         }
+        console.log("-----连接服务器信息 url:" + url);
 
         handshakeBuffer.user = params.user;
         if (params.encrypt) {
@@ -2696,9 +2721,12 @@
           handshakeBuffer.sys.rsa = data;
         }
         handshakeCallback = params.handshakeCallback;
+
+        // 调用真正的连接
         connect(params, url, cb);
       };
 
+      // 默认的编码器
       var defaultDecode = pomelo.decode = function (data) {
         //probuff decode
         var msg = Message.decode(data);
@@ -2715,6 +2743,7 @@
         return msg;
       };
 
+      // 默认的解码器
       var defaultEncode = pomelo.encode = function (reqId, route, msg) {
         var type = reqId ? Message.TYPE_REQUEST : Message.TYPE_NOTIFY;
 
@@ -2737,12 +2766,19 @@
         return Message.encode(reqId, type, compressRoute, route, msg);
       };
 
+      /**
+       * 连接服务器
+       * @param {*} params  客户端传递过来的参数
+       * @param {*} url     根据客户端传递过来的连接参数，确定的连接的服务器的地址
+       * @param {*} cb      连接服务器完毕触发的回调
+       */
       var connect = function (params, url, cb) {
         console.log('connect to ' + url);
 
         var params = params || {};
         var maxReconnectAttempts = params.maxReconnectAttempts || DEFAULT_MAX_RECONNECT_ATTEMPTS;
         reconnectUrl = url;
+
         //Add protobuf version
         if (window.localStorage && window.localStorage.getItem('protos') && protoVersion === 0) {
           var protos = JSON.parse(window.localStorage.getItem('protos'));
@@ -2762,6 +2798,7 @@
         //Set protoversion
         handshakeBuffer.sys.protoVersion = protoVersion;
 
+        // 打开连接
         var onopen = function (event) {
           if (!!reconnect) {
             pomelo.emit('reconnect');
@@ -2770,6 +2807,8 @@
           var obj = Package.encode(Package.TYPE_HANDSHAKE, Protocol.strencode(JSON.stringify(handshakeBuffer)));
           send(obj);
         };
+
+        // 收到消息
         var onmessage = function (event) {
           processPackage(Package.decode(event.data), cb);
           // new package arrived, update the heartbeat timeout
@@ -2777,10 +2816,14 @@
             nextHeartbeatTimeout = Date.now() + heartbeatTimeout;
           }
         };
+
+        // 出错
         var onerror = function (event) {
           pomelo.emit('io-error', event);
           console.error('socket error: ', event);
         };
+
+        // 关闭socket
         var onclose = function (event) {
           pomelo.emit('close', event);
           pomelo.emit('disconnect', event);
@@ -2794,32 +2837,55 @@
             reconnectionDelay *= 2;
           }
         };
+
+        /**
+         * 源码之前了无秘密
+         * 初始化websocket，因此在cocos-js对应的这个，是websocket
+         */
         socket = new WebSocket(url);
-        socket.binaryType = 'arraybuffer';
+        socket.binaryType = 'arraybuffer';  //二进制类型是arraybuffer，而不是blob
         socket.onopen = onopen;
         socket.onmessage = onmessage;
         socket.onerror = onerror;
         socket.onclose = onclose;
       };
 
+      // 关闭socket
       pomelo.disconnect = function () {
+
+        // 如果当前socket连接存在，则先进行清理操作
         if (socket) {
-          if (socket.disconnect) socket.disconnect();
-          if (socket.close) socket.close();
+
+          // 
+          if (socket.disconnect) {
+            socket.disconnect();
+          }
+
+          // 
+          if (socket.close) {
+            socket.close();
+          }
+
           console.log('disconnect');
+
+          // 良好的习惯: 赋值为null
           socket = null;
         }
 
+        // 关闭心跳定时器
         if (heartbeatId) {
           clearTimeout(heartbeatId);
           heartbeatId = null;
         }
+
+        // 关闭心跳超时定时器
         if (heartbeatTimeoutId) {
           clearTimeout(heartbeatTimeoutId);
           heartbeatTimeoutId = null;
         }
       };
 
+      // 
       var reset = function () {
         reconnect = false;
         reconnectionDelay = 1000 * 5;
@@ -2827,46 +2893,81 @@
         clearTimeout(reconncetTimer);
       };
 
+      /**
+       * 发起请求
+       * @param {*} route  请求路由
+       * @param {*} msg    客户端传递的请求的参数信息
+       * @param {*} cb     收到请求后，服务器返回的回调
+       */
       pomelo.request = function (route, msg, cb) {
+
+        // 如果传递的是2个参数的处理
         if (arguments.length === 2 && typeof msg === 'function') {
           cb = msg;
           msg = {};
         } else {
           msg = msg || {};
         }
+
+        // 
         route = route || msg.route;
+
+        // 如果没有传递路由信息，则该次请求无效
         if (!route) {
           return;
         }
 
+        // 请求id+1
         reqId++;
+
+        // 
         sendMessage(reqId, route, msg);
 
+        // 记录请求id 和 对应的回调函数
         callbacks[reqId] = cb;
+
+        // 记录请求id和对应的路由
         routeMap[reqId] = route;
       };
 
+      // 
       pomelo.notify = function (route, msg) {
         msg = msg || {};
         sendMessage(0, route, msg);
       };
 
+      // 
       var sendMessage = function (reqId, route, msg) {
+
+        // 是否使用加密
         if (useCrypto) {
+
+          // 先序列化为json
           msg = JSON.stringify(msg);
+
+          // 签名： msg进行sha256加密后的值
           var sig = rsa.signString(msg, "sha256");
+
+          // 反序列化重新得到值
           msg = JSON.parse(msg);
+
+          // 存储加密后的签名
           msg['__crypto__'] = sig;
         }
 
+        // 编码
         if (encode) {
           msg = encode(reqId, route, msg);
         }
 
+        // 得到编码后的包
         var packet = Package.encode(Package.TYPE_DATA, msg);
+
+        // 发送包
         send(packet);
       };
 
+      // 发送
       var send = function (packet) {
         if (socket)
           socket.send(packet.buffer);
@@ -2875,37 +2976,55 @@
       var handler = {};
 
       var heartbeat = function (data) {
+
+        // 没有心跳计时器间隔，则返回
         if (!heartbeatInterval) {
           // no heartbeat
           return;
         }
 
         var obj = Package.encode(Package.TYPE_HEARTBEAT);
+
+        // 清理掉心跳超时计时器
         if (heartbeatTimeoutId) {
           clearTimeout(heartbeatTimeoutId);
           heartbeatTimeoutId = null;
         }
 
+        // 有了心跳id计时器，则返回
         if (heartbeatId) {
           // already in a heartbeat interval
           return;
         }
+
+        // 心跳计时器
         heartbeatId = setTimeout(function () {
           heartbeatId = null;
           send(obj);
 
+          // 下次心跳超时的时间
           nextHeartbeatTimeout = Date.now() + heartbeatTimeout;
           heartbeatTimeoutId = setTimeout(heartbeatTimeoutCb, heartbeatTimeout);
         }, heartbeatInterval);
       };
 
+      // 心跳计时器超时后的回调
       var heartbeatTimeoutCb = function () {
+
+        // 根据当前时间计算：距离心跳超时的时间还剩余的时间
         var gap = nextHeartbeatTimeout - Date.now();
+
         if (gap > gapThreshold) {
           heartbeatTimeoutId = setTimeout(heartbeatTimeoutCb, gap);
-        } else {
+        }
+        else {
+
           console.error('server heartbeat timeout');
+
+          // 发送超时的消息
           pomelo.emit('heartbeat timeout');
+
+          // 超时断开连接
           pomelo.disconnect();
         }
       };
@@ -3060,6 +3179,7 @@
         }
       };
 
+      // 最终导出的就是pomelo这个对象
       module.exports = pomelo;
     })();
 
@@ -3562,6 +3682,7 @@
       var decoder = require('./decoder');
       var parser = require('./parser');
 
+      // 在模块基础上继续扩展
       var Protobuf = module.exports;
 
       /**
