@@ -25,6 +25,7 @@ cc.Class({
         this.roles = [];
 
         var self = this;
+
         // 进入房间
         self.entryroomCallback = function (data) {
             self.addRole(data.user);
@@ -96,6 +97,8 @@ cc.Class({
         // 这里做一次rtt
         net.send('connector.entryHandler.rtt', { time: new Date().getTime() }, function (data) {
             var now = new Date().getTime();
+
+            // 记录一次请求，从发送到 服务器回应结束，所在网络上经历的时间
             consts.rtt = now - data.time;
         });
     },
@@ -103,11 +106,16 @@ cc.Class({
     //
     addRole: function (player) {
 
+        // 初始化一个任务角色Prefab
         var prefab = cc.instantiate(this.roomRolePrefab);
+
+        // binRoomRole 是挂载在Prefab上面的一个脚本
         var bin = prefab.getComponent('binRoomRole');
 
+        //  根据玩家信息初始化
         bin.init(player);
 
+        // 玩家是否在游戏中
         if (player.isInGame) {
             prefab.parent = this.inGameContent;
         } else {
@@ -118,6 +126,8 @@ cc.Class({
         if (player.uid === Player.uid) {
             bin.setColor(cc.Color.GREEN);
         }
+
+        // 所有玩家，加入这个人物信息
         this.roles.push(bin);
     },
 
@@ -171,5 +181,4 @@ cc.Class({
             }
         });
     }
-
 });

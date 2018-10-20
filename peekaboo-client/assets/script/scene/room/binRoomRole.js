@@ -13,7 +13,7 @@ cc.Class({
         this.isCaptainNode.active = false;
     },
 
-    //
+    //玩家信息初始化
     init: function (player) {
         this.uid = player.uid;
         this.camp = player.camp;
